@@ -60,8 +60,22 @@ func main() {
 	}
 	log.Printf("%s has been started...\n", b.User.Username)
 
-	// Idle, to keep updates coming in, and avoid bot stopping.
-	updater.Idle()
+	// Setup new HTTP server mux to handle different paths.
+	mux := http.NewServeMux()
+	// This serves the home page.
+	//mux.HandleFunc("/", index(webappURL))
+	// This serves our "validation" API, which checks if the input data is valid.
+	mux.HandleFunc("/validate", validate(token))
+	server := http.Server{
+		Handler: mux,
+		Addr:    "0.0.0.0:4000",
+	}
+
+	// Start the webserver displaying the page.
+	// Note: ListenAndServe is a blocking operation, so we don't need to call updater.Idle() here.
+	if err := server.ListenAndServe(); err != nil {
+		panic("failed to listen and serve: " + err.Error())
+	}
 }
 
 // start introduces the bot.
@@ -78,4 +92,20 @@ func start(b *gotgbot.Bot, ctx *ext.Context, webAppUrl string) error {
 		return fmt.Errorf("failed to send start message: %w", err)
 	}
 	return nil
+}
+
+func validate(token string) func(writer http.ResponseWriter, request *http.Request) {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		ok, err := ext.ValidateWebAppQuery(request.URL.Query(), token)
+		if err != nil {
+			writer.WriteHeader(http.StatusBadRequest)
+			writer.Write([]byte("validation failed; error: " + err.Error()))
+			return
+		}
+		if ok {
+			writer.Write([]byte("validation success; user is authenticated."))
+		} else {
+			writer.Write([]byte("validation failed; data cannot be trusted."))
+		}
+	}
 }

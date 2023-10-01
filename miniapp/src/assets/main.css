@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    min-height: 100vh;
+    color: var(--tg-theme-text-color);
+    background: var(--tg-theme-bg-color);
+}

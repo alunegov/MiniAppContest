@@ -3,10 +3,10 @@
   import { watchEffect } from 'vue';
 
   const emit = defineEmits<{
-    (event: "click"): void;
+    (event: 'click'): void;
   }>();
 
-  const onClick = () => emit("click");
+  const onClick = () => emit('click');
 
   const button = WebApp.BackButton;
 

@@ -62,13 +62,15 @@ func main() {
 
 	// Setup new HTTP server mux to handle different paths.
 	mux := http.NewServeMux()
+
 	// This serves the home page.
 	//mux.HandleFunc("/", index(webappURL))
 	// This serves our "validation" API, which checks if the input data is valid.
 	mux.HandleFunc("/validate", validate(token))
+
 	server := http.Server{
-		Handler: mux,
 		Addr:    "0.0.0.0:4000",
+		Handler: mux,
 	}
 
 	// Start the webserver displaying the page.

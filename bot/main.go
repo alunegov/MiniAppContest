@@ -24,10 +24,15 @@ func main() {
 		panic("URL environment variable is empty")
 	}
 
+	testEnv := os.Getenv("TEST_ENV")
+	if testEnv != "" {
+		fmt.Println("Using test environment!")
+	}
+
 	b, err := gotgbot.NewBot(token, &gotgbot.BotOpts{
 		BotClient: &gotgbot.BaseBotClient{
 			Client:             http.Client{},
-			UseTestEnvironment: true,
+			UseTestEnvironment: testEnv != "",
 			DefaultRequestOpts: nil,
 		},
 	})

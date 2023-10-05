@@ -26,7 +26,7 @@ func main() {
 
 	testEnv := os.Getenv("TEST_ENV")
 	if testEnv != "" {
-		fmt.Println("Using test environment!")
+		log.Println("Using test environment!")
 	}
 
 	b, err := gotgbot.NewBot(token, &gotgbot.BotOpts{

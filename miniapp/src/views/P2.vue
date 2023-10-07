@@ -1,36 +1,44 @@
 <script setup lang="ts">
+  //console.log('P2');
+
   import { useRouter } from 'vue-router';
   import WebApp from '@twa-dev/sdk';
   import { useCounterStore } from '../stores/counter';
   import BackButton from '../components/BackButton.vue';
   import MainButton from '../components/MainButton.vue';
+  import { useClosingConfirmation } from '../composables/useClosingConfirmation';
 
   const router = useRouter();
   const counterStore = useCounterStore();
 
+  if (!counterStore.isSmthSelected) {
+    //console.log('empty, going to P1');
+    router.replace('/');
+  }
+
+  useClosingConfirmation(true);
+
   function onBackButtonClicked() {
-    console.log('back');
     router.back();
   }
 
   async function onMainButtonClicked() {
-    console.log('main');
     await counterStore.makeOrder();
+    WebApp.showPopup({message: 'done'}, _ => WebApp.close());
     //WebApp.close();
-    WebApp.showPopup({message: 'done'});
   }
 </script>
 
 <template>
-  <BackButton @click="onBackButtonClicked" />
-  <ul>
-    <li v-for="it in counterStore.items" :key="it.item.id">
-      <div v-if="it.qty > 0">
+  <div>
+    <BackButton @click="onBackButtonClicked" />
+    <ul>
+      <li v-for="it in counterStore.selectedItems" :key="it.item.id">
         {{ it.item.name }}
         {{ it.qty }}x
         {{ it.qty * it.item.price }}
-      </div>
-    </li>
-  </ul>
-  <MainButton :text="'MAKE ORDER'" @click="onMainButtonClicked" />
+      </li>
+    </ul>
+    <MainButton :text="'MAKE ORDER'" @click="onMainButtonClicked" />
+  </div>
 </template>

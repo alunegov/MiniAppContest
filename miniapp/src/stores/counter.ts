@@ -6,22 +6,33 @@ export const useCounterStore = defineStore('counter', () => {
 
   const items = ref<{item: Item; qty: number}[]>([]);
 
-  const gotSelectedItems = computed(() => items.value.findIndex(it => it.qty > 0) !== -1);
+  const selectedItems = computed(() => items.value.filter(it => it.qty > 0));
+
+  const isSmthSelected = computed(() => selectedItems.value.length !== 0);
 
   async function loadItems() {
     const resp = await fetch(`${APP_API}/goods`);
-    console.log(resp);
+    //console.log(resp);
     const goods: Item[] = await resp.json();
     items.value = goods.map(it => ({item: it, qty: 0}));
   }
 
   function addItem(item: Item) {
     const indx = items.value.findIndex(it => it.item.id === item.id);
+    if (indx === -1) {
+      // TODO: error
+      return
+    }
     items.value[indx].qty++;
   }
 
   function removeItem(item: Item) {
     const indx = items.value.findIndex(it => it.item.id === item.id);
+    if (indx === -1) {
+      // TODO: error
+      return
+    }
+    console.assert(items.value[indx].qty > 0);
     items.value[indx].qty--;
   }
 
@@ -29,16 +40,17 @@ export const useCounterStore = defineStore('counter', () => {
     const resp = await fetch(`${APP_API}/order`, {
       method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
-      body: "[]",
+      body: JSON.stringify(selectedItems.value),
     });
-    console.log(resp);
+    //console.log(resp);
   }
 
   return {
     items,
-    gotSelectedItems,
+    selectedItems,
+    isSmthSelected,
     
     loadItems,
     addItem,

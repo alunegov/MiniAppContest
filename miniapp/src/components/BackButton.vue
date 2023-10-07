@@ -24,7 +24,3 @@
     });
   });
 </script>
-
-<template>
-  <div />
-</template>

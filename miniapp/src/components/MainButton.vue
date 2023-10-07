@@ -30,3 +30,7 @@
     });
   });
 </script>
+
+<template>
+  <div />
+</template>

@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -13,13 +14,13 @@ func main() {
 
 	mux.HandleOPTIONS = true
 	mux.GlobalOPTIONS = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		//fmt.Println(r)
+		//log.Println(r)
 
 		if r.Header.Get("Access-Control-Request-Method") != "" {
 			// Set CORS headers
 			header := w.Header()
 			header.Set("Access-Control-Allow-Methods", header.Get("Allow"))
-			header.Set("Access-Control-Allow-Headers", "Content-Type")
+			header.Set("Access-Control-Allow-Headers", "Content-Type, ngrok-skip-browser-warning")
 			//header.Set("Access-Control-Allow-Credentials", "true")
 			header.Set("Access-Control-Allow-Origin", "*")
 		}
@@ -46,7 +47,9 @@ func main() {
 
 func goods() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		//fmt.Println(r)
+		log.Println(r)
+
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 
 		g := []struct {
 			Id    int    `json:"id"`
@@ -54,29 +57,38 @@ func goods() func(w http.ResponseWriter, r *http.Request) {
 			Price int    `json:"price"`
 			Pic   string `json:"pic"`
 		}{
-			{1, "Pen", 10, "/pen.png"},
-			{2, "Pineapple", 20, "/pineapple.png"},
-			{3, "Apple", 30, "/apple.png"},
+			{1, "Pen", 10, "https://img.icons8.com/dusk/64/pen.png"},
+			{2, "Pineapple", 20, "https://img.icons8.com/officel/80/pineapple.png"},
+			{3, "Apple", 30, "https://img.icons8.com/external-smashingstocks-flat-smashing-stocks/66/external-Apple-food-smashingstocks-flat-smashing-stocks.png"},
 		}
 
-		b, err := json.Marshal(g)
+		w.Header().Set("Content-Type", "application/json")
+
+		err := json.NewEncoder(w).Encode(g)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Content-Type", "application/json")
-
-		w.Write(b)
 	}
 }
 
 func order() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		//fmt.Println(r)
+		log.Println(r)
 
 		w.Header().Set("Access-Control-Allow-Origin", "*")
+
+		var o []struct {
+			Id  int `json:"id"`
+			Qty int `json:"qty"`
+		}
+
+		err := json.NewDecoder(r.Body).Decode(&o)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		log.Println(o)
 
 		w.WriteHeader(http.StatusNoContent)
 	}

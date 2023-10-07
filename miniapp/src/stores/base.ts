@@ -1,7 +1,7 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 
-export const useCounterStore = defineStore('counter', () => {
+export const useBaseStore = defineStore('base', () => {
   const APP_API = import.meta.env.VITE_APP_API;
 
   const items = ref<{item: Item; qty: number}[]>([]);
@@ -11,7 +11,11 @@ export const useCounterStore = defineStore('counter', () => {
   const isSmthSelected = computed(() => selectedItems.value.length !== 0);
 
   async function loadItems() {
-    const resp = await fetch(`${APP_API}/goods`);
+    const resp = await fetch(`${APP_API}/goods`, {
+      headers: {
+        'ngrok-skip-browser-warning': 'net',
+      },
+    });
     //console.log(resp);
     const goods: Item[] = await resp.json();
     items.value = goods.map(it => ({item: it, qty: 0}));
@@ -37,12 +41,16 @@ export const useCounterStore = defineStore('counter', () => {
   }
 
   async function makeOrder() {
+    const payload = selectedItems.value.map(it => ({id: it.item.id, qty: it.qty}));
+    //console.log(payload);
+
     const resp = await fetch(`${APP_API}/order`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'net',
       },
-      body: JSON.stringify(selectedItems.value),
+      body: JSON.stringify(payload),
     });
     //console.log(resp);
   }

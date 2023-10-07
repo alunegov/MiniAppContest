@@ -24,3 +24,7 @@
     });
   });
 </script>
+
+<template>
+  <div />
+</template>

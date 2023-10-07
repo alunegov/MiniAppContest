@@ -18,15 +18,15 @@ func main() {
 		panic("TOKEN environment variable is empty")
 	}
 
+	testEnv := os.Getenv("TEST_ENV")
+	if testEnv != "" {
+		log.Println("Using test servers!")
+	}
+
 	// This MUST be an HTTPS URL for Telegram to accept it
 	webAppUrl := os.Getenv("URL")
 	if webAppUrl == "" {
 		panic("URL environment variable is empty")
-	}
-
-	testEnv := os.Getenv("TEST_ENV")
-	if testEnv != "" {
-		log.Println("Using test environment!")
 	}
 
 	b, err := gotgbot.NewBot(token, &gotgbot.BotOpts{
@@ -68,8 +68,6 @@ func main() {
 	// Setup new HTTP server mux to handle different paths.
 	mux := http.NewServeMux()
 
-	// This serves the home page.
-	//mux.HandleFunc("/", index(webappURL))
 	// This serves our "validation" API, which checks if the input data is valid.
 	mux.HandleFunc("/validate", validate(token))
 

@@ -50,3 +50,7 @@ npm run test:unit
 ```sh
 npm run lint
 ```
+
+## Attribution
+
+Apple and Pineapple icons are from [FreeVector.com](https://www.freevector.com/fruity-icons-vector-29010).

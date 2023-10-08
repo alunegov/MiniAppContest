@@ -16,7 +16,6 @@ export const useBaseStore = defineStore('base', () => {
         'ngrok-skip-browser-warning': 'net',
       },
     });
-    //console.log(resp);
     const goods: Item[] = await resp.json();
     items.value = goods.map(it => ({item: it, qty: 0}));
   }
@@ -42,9 +41,8 @@ export const useBaseStore = defineStore('base', () => {
 
   async function makeOrder() {
     const payload = selectedItems.value.map(it => ({id: it.item.id, qty: it.qty}));
-    //console.log(payload);
 
-    const resp = await fetch(`${APP_API}/order`, {
+    /*const resp = */await fetch(`${APP_API}/order`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -52,7 +50,6 @@ export const useBaseStore = defineStore('base', () => {
       },
       body: JSON.stringify(payload),
     });
-    //console.log(resp);
   }
 
   return {
@@ -72,4 +69,5 @@ export interface Item {
   name: string;
   price: number;
   pic: string;
+  picAlt: string;
 }

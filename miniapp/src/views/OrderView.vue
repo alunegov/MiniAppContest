@@ -11,7 +11,7 @@
   const baseStore = useBaseStore();
 
   if (!baseStore.isSmthSelected) {
-    //console.log('empty, going to P1');
+    // empty cart (reload or direct link), going to GoodsView
     router.replace('/');
   }
 
@@ -33,30 +33,22 @@
   <div class="container mx-auto px-5 pt-2">
     <BackButton @click="onBackButtonClicked" />
 
-    <div class="flex mb-2">
+    <div class="flex mb-3">
       <div class="">YOUR ORDER</div>
       <button v-wave type="button" @click="onBackButtonClicked" class="ms-4 px-6 rounded text-[--tg-theme-button-color] hover:bg-[--tg-theme-secondary-bg-color]">Edit</button>
     </div>
 
     <div v-for="it in baseStore.selectedItems" :key="it.item.id" class="relative flex items-center mb-2">
-        <img :src="it.item.pic" :alt="''" class="w-10 h-10">
-        <div class="ms-2">{{ it.item.name }}</div>
-        <div class="ms-2 text-[--tg-theme-button-color]">{{ it.qty }}x</div>
-        <div class="absolute end-0">${{ it.qty * it.item.price }}</div>
+      <img :src="it.item.pic" :alt="it.item.picAlt" class="w-10 h-10">
+      <div class="ms-2">{{ it.item.name }}</div>
+      <div class="ms-2 text-[--tg-theme-button-color]">{{ it.qty }}x</div>
+      <div class="absolute end-0">${{ it.qty * it.item.price }}</div>
     </div>
 
     <div class="h-8 flex items-center place-content-end">
       <div class="font-bold">TOTAL</div>
       <div class="ms-5 font-bold">${{ total }}</div>
     </div>
-
-    <!--<div class="-mx-5 h-4 bg-[--tg-theme-secondary-bg-color]" />
-
-    <div class="">
-      <textarea placeholder="Phone" class="w-full bg-transparent"></textarea>
-      <textarea placeholder="Address" class="w-full bg-transparent"></textarea>
-      <textarea placeholder="Delivery date" class="w-full bg-transparent"></textarea>
-    </div>-->
 
     <MainButton :text="'MAKE ORDER'" @click="onMainButtonClicked" />
   </div>

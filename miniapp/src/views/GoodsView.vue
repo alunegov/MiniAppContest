@@ -29,9 +29,9 @@
   <div class="container mx-auto px-5 pt-2">
     <div class="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
       <div v-for="it in baseStore.items" :key="it.item.id" class="">
-        <div class="relative w-full h-36">
-          <span v-if="it.qty > 0" class="absolute end-0 rounded-full px-2 inline-flex justify-center items-center bg-[--tg-theme-button-color]">{{ it.qty }}</span>
-          <img :src="it.item.pic" :alt="''" class="h-full mx-auto p-6">
+        <div class="relative w-full h-28">
+          <span v-if="it.qty > 0" class="absolute end-0 rounded-full px-2 inline-flex justify-center items-center text-[--tg-theme-button-text-color] bg-[--tg-theme-button-color]">{{ it.qty }}</span>
+          <img :src="it.item.pic" :alt="it.item.picAlt" class="h-full mx-auto">
         </div>
 
         <div class="mt-2 flex justify-between">
@@ -41,9 +41,9 @@
 
         <div class="mt-2 flex gap-2">
           <Transition name="ba">
-            <button v-if="it.qty > 0" v-wave type="button" @click="onUnbuyClicked(it.item)" class="w-full rounded text-[--tg-theme-button-text-color] bg-red-400">-</button>
+            <button v-if="it.qty > 0" v-wave type="button" @click="onUnbuyClicked(it.item)" class="w-full h-11 rounded text-[--tg-theme-button-text-color] bg-red-400">-</button>
           </Transition>
-          <button v-wave type="button" @click="onBuyClicked(it.item)" class="w-full h-12 rounded text-[--tg-theme-button-text-color] bg-[--tg-theme-button-color]">{{ it.qty === 0 ? 'ADD' : '+' }}</button>
+          <button v-wave type="button" @click="onBuyClicked(it.item)" class="w-full h-11 rounded text-[--tg-theme-button-text-color] bg-[--tg-theme-button-color]">{{ it.qty === 0 ? 'ADD' : '+' }}</button>
         </div>
       </div>
     </div>

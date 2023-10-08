@@ -1,16 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import P1 from '../views/P1.vue';
+import GoodsView from '../views/GoodsView.vue';
 
 const routes = [
   {
-    name: 'p1',
+    name: 'GoodsView',
     path: '/',
-    component: P1,
+    component: GoodsView,
   },
   {
-    name: 'p2',
+    name: 'OrderView',
     path: '/order',
-    component: () => import('../views/P2.vue'),
+    component: () => import('../views/OrderView.vue'),
   },
 ];
 

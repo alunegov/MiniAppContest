@@ -13,11 +13,11 @@
   useClosingConfirmation(isSmthSelected);
 
   function onBuyClicked(item: Item) {
-    baseStore.addItem(item);
+    baseStore.buyItem(item);
   }
 
   function onUnbuyClicked(item: Item) {
-    baseStore.removeItem(item);
+    baseStore.unbuyItem(item);
   }
 
   function onMainButtonClicked() {

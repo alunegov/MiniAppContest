@@ -50,6 +50,6 @@
       <div class="ms-5 font-bold">${{ total }}</div>
     </div>
 
-    <MainButton :text="'MAKE ORDER'" @click="onMainButtonClicked" />
+    <MainButton :text="'PLACE ORDER'" @click="onMainButtonClicked" />
   </div>
 </template>

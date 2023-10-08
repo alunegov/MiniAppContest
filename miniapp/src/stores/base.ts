@@ -13,14 +13,14 @@ export const useBaseStore = defineStore('base', () => {
   async function loadItems() {
     const resp = await fetch(`${APP_API}/goods`, {
       headers: {
-        'ngrok-skip-browser-warning': 'net',
+        'Ngrok-Skip-Browser-Warning': 'da',
       },
     });
     const goods: Item[] = await resp.json();
     items.value = goods.map(it => ({item: it, qty: 0}));
   }
 
-  function addItem(item: Item) {
+  function buyItem(item: Item) {
     const indx = items.value.findIndex(it => it.item.id === item.id);
     if (indx === -1) {
       // TODO: error
@@ -29,7 +29,7 @@ export const useBaseStore = defineStore('base', () => {
     items.value[indx].qty++;
   }
 
-  function removeItem(item: Item) {
+  function unbuyItem(item: Item) {
     const indx = items.value.findIndex(it => it.item.id === item.id);
     if (indx === -1) {
       // TODO: error
@@ -46,7 +46,7 @@ export const useBaseStore = defineStore('base', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'ngrok-skip-browser-warning': 'net',
+        'Ngrok-Skip-Browser-Warning': 'da',
       },
       body: JSON.stringify(payload),
     });
@@ -58,8 +58,8 @@ export const useBaseStore = defineStore('base', () => {
     isSmthSelected,
     
     loadItems,
-    addItem,
-    removeItem,
+    buyItem,
+    unbuyItem,
     makeOrder,
   };
 })

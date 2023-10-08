@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	// Setup new HTTP server mux to handle different paths.
+	// Setup new HTTP server mux to handle different paths
 	mux := httprouter.New()
 
 	mux.HandleOPTIONS = true
@@ -20,8 +20,7 @@ func main() {
 			// Set CORS headers
 			header := w.Header()
 			header.Set("Access-Control-Allow-Methods", header.Get("Allow"))
-			header.Set("Access-Control-Allow-Headers", "Content-Type, ngrok-skip-browser-warning")
-			//header.Set("Access-Control-Allow-Credentials", "true")
+			header.Set("Access-Control-Allow-Headers", "Content-Type, Ngrok-Skip-Browser-Warning")
 			header.Set("Access-Control-Allow-Origin", "*")
 		}
 
@@ -29,9 +28,9 @@ func main() {
 		w.WriteHeader(http.StatusNoContent)
 	})
 
-	// This serves .
+	// This serves
 	mux.HandlerFunc(http.MethodGet, "/goods", goods())
-	// This serves .
+	// This serves
 	mux.HandlerFunc(http.MethodPost, "/order", order())
 
 	server := http.Server{
@@ -39,7 +38,7 @@ func main() {
 		Handler: mux,
 	}
 
-	// Start the webserver displaying the page.
+	// Start the webserver
 	if err := server.ListenAndServe(); err != nil {
 		panic("failed to listen and serve: " + err.Error())
 	}
@@ -52,14 +51,15 @@ func goods() func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 
 		g := []struct {
-			Id    int    `json:"id"`
-			Name  string `json:"name"`
-			Price int    `json:"price"`
-			Pic   string `json:"pic"`
+			Id     int    `json:"id"`
+			Name   string `json:"name"`
+			Price  int    `json:"price"`
+			Pic    string `json:"pic"`
+			PicAlt string `json:"picAlt"`
 		}{
-			{1, "Pen", 10, "https://img.icons8.com/dusk/64/pen.png"},
-			{2, "Pineapple", 20, "https://img.icons8.com/officel/80/pineapple.png"},
-			{3, "Apple", 30, "https://img.icons8.com/external-smashingstocks-flat-smashing-stocks/66/external-Apple-food-smashingstocks-flat-smashing-stocks.png"},
+			{1, "Pen", 10, "https://miniappcontest.work.gd/images/pen.svg", "Pen"},
+			{2, "Pineapple", 20, "https://miniappcontest.work.gd/images/pineapple.svg", "Pineapple"},
+			{3, "Apple", 30, "https://miniappcontest.work.gd/images/apple.svg", "Apple"},
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -89,6 +89,8 @@ func order() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		log.Println(o)
+
+		// TODO: persist order
 
 		w.WriteHeader(http.StatusNoContent)
 	}

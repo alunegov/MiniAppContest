@@ -9,6 +9,7 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/message"
 )
 
 func main() {
@@ -18,6 +19,7 @@ func main() {
 		panic("TOKEN environment variable is empty")
 	}
 
+	// Use Telegram test servers?
 	testEnv := os.Getenv("TEST_ENV")
 	if testEnv != "" {
 		log.Println("Using test servers!")
@@ -40,10 +42,10 @@ func main() {
 		panic("failed to create new bot: " + err.Error())
 	}
 
-	// Create updater and dispatcher to handle updates in a simple manner.
+	// Create updater and dispatcher to handle updates in a simple manner
 	updater := ext.NewUpdater(&ext.UpdaterOpts{
 		Dispatcher: ext.NewDispatcher(&ext.DispatcherOpts{
-			// If an error is returned by a handler, log it and continue going.
+			// If an error is returned by a handler, log it and continue going
 			Error: func(b *gotgbot.Bot, ctx *ext.Context, err error) ext.DispatcherAction {
 				log.Println("an error occurred while handling update:", err.Error())
 				return ext.DispatcherActionNoop
@@ -57,39 +59,29 @@ func main() {
 	dispatcher.AddHandler(handlers.NewCommand("start", func(b *gotgbot.Bot, ctx *ext.Context) error {
 		return start(b, ctx, webAppUrl)
 	}))
+	// just log all other messages
+	dispatcher.AddHandler(handlers.NewMessage(message.Text, justLog))
 
-	// Start receiving (and handling) updates.
+	// Start receiving (and handling) updates
 	err = updater.StartPolling(b, &ext.PollingOpts{DropPendingUpdates: true})
 	if err != nil {
 		panic("failed to start polling: " + err.Error())
 	}
 	log.Printf("%s has been started...\n", b.User.Username)
 
-	// Setup new HTTP server mux to handle different paths.
-	mux := http.NewServeMux()
-
-	// This serves our "validation" API, which checks if the input data is valid.
-	mux.HandleFunc("/validate", validate(token))
-
-	server := http.Server{
-		Addr:    "0.0.0.0:4000",
-		Handler: mux,
-	}
-
-	// Start the webserver displaying the page.
-	// Note: ListenAndServe is a blocking operation, so we don't need to call updater.Idle() here.
-	if err := server.ListenAndServe(); err != nil {
-		panic("failed to listen and serve: " + err.Error())
-	}
+	// Idle, to keep updates coming in, and avoid bot stopping
+	updater.Idle()
 }
 
-// start introduces the bot.
+// start introduces the bot
 func start(b *gotgbot.Bot, ctx *ext.Context, webAppUrl string) error {
-	_, err := ctx.EffectiveMessage.Reply(b, fmt.Sprintf("Hello, I'm @%s.\nYou can use me to run a (very) simple telegram webapp demo!", b.User.Username), &gotgbot.SendMessageOpts{
+	log.Println("/start", ctx.EffectiveMessage)
+
+	_, err := ctx.EffectiveMessage.Reply(b, fmt.Sprintf("Hello, I'm @%s.\nYou can use me to order goods from demo shop!", b.User.Username), &gotgbot.SendMessageOpts{
 		ParseMode: "HTML",
 		ReplyMarkup: gotgbot.InlineKeyboardMarkup{
 			InlineKeyboard: [][]gotgbot.InlineKeyboardButton{{
-				{Text: "Press me", WebApp: &gotgbot.WebAppInfo{Url: webAppUrl}},
+				{Text: "Order goods", WebApp: &gotgbot.WebAppInfo{Url: webAppUrl}},
 			}},
 		},
 	})
@@ -99,18 +91,8 @@ func start(b *gotgbot.Bot, ctx *ext.Context, webAppUrl string) error {
 	return nil
 }
 
-func validate(token string) func(writer http.ResponseWriter, request *http.Request) {
-	return func(writer http.ResponseWriter, request *http.Request) {
-		ok, err := ext.ValidateWebAppQuery(request.URL.Query(), token)
-		if err != nil {
-			writer.WriteHeader(http.StatusBadRequest)
-			writer.Write([]byte("validation failed; error: " + err.Error()))
-			return
-		}
-		if ok {
-			writer.Write([]byte("validation success; user is authenticated."))
-		} else {
-			writer.Write([]byte("validation failed; data cannot be trusted."))
-		}
-	}
+// justLog logs a message
+func justLog(b *gotgbot.Bot, ctx *ext.Context) error {
+	log.Println("unk", ctx.EffectiveMessage)
+	return nil
 }

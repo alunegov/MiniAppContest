@@ -1,3 +1,5 @@
+<!-- Page shows list of shop items with prices and ability to select -->
+
 <script setup lang="ts">
   import { computed } from 'vue';
   import { useRouter } from 'vue-router';
@@ -9,17 +11,22 @@
   const router = useRouter();
   const baseStore = useBaseStore();
 
+  // exit confirmation if something has been selected
+  // baseStore.isSmthSelected looses reactivity being passed directly
   const isSmthSelected = computed(() => baseStore.isSmthSelected);
   useClosingConfirmation(isSmthSelected);
 
+  // add to cart handler
   function onBuyClicked(item: Item) {
     baseStore.buyItem(item);
   }
 
+  // remove from cart handler
   function onUnbuyClicked(item: Item) {
     baseStore.unbuyItem(item);
   }
 
+  // view order handler, go to OrderView
   function onMainButtonClicked() {
     router.push('/order');
   }

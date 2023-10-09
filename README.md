@@ -1,43 +1,105 @@
-# MiniAppContest
+# Demo shop Mini App
 
-back
-bot
-miniapp(front)
+
+Demo shop is a simple [Telegram Mini App](https://core.telegram.org/bots/webapps) providing basic e-commerce functionality. Try this Mini App using [@MiniAppContestBot][2].
+
+
+Mini Apps can be interpreted as web sites (frontend and backend) running inside Telegram and launched via [bots](https://core.telegram.org/bots). This Mini App consists of three parts:
+- backend (*back* folder) - [Go][1] application using [httprouter](https://github.com/julienschmidt/httprouter).
+- bot (*bot* folder) - [Go][1] application using [gotgbot](https://github.com/PaulSonOfLars/gotgbot).
+- frontend (*miniapp* folder) - [Vue](https://vuejs.org/) application using [Pinia](https://pinia.vuejs.org/), [Vue Router](https://router.vuejs.org/) and [Tailwind CSS](https://tailwindcss.com/).
+
+
+## Structure
+
+
+### backend
+
+
+Backend is based on **http.Server** - standard HTTP server and **httprouter** - HTTP request router. Server runs on the port 4001, and serves two API endpoints:
+- `/goods` - GET-request to get the list of shop items. Data is returned as JSON payload.
+- `/order` - POST-request to place the order. Order data is accepted as JSON request body.
+
+It also supports OPTIONS requests.
+
+
+### bot
+
+
+Bot is based on **gotgbot** - Golang Telegram Bot library. Bot supports one command `/start`, to which it replys with the Mini App link (HTTPS URL). Bot can be configured with this environment variables:
+- `TOKEN` - bot token.
+- `TEST_ENV` - use Telegram test servers.
+- `URL` - Mini App HTTPS URL.
+
+> Use [this](https://core.telegram.org/bots#how-do-i-create-a-bot) on how to create bot and get bot token.
+
+
+There are several ways to launch Mini App. This Mini App uses next three:
+- when sending `/start` command to [@DemoShopMACBot][2] it replys with inline button **Order goods** which opens the Mini App.
+- also [@DemoShopMACBot][2] has menu button **Order goods** which opens the Mini App. This can be achieved [using](https://core.telegram.org/bots/webapps#launching-mini-apps-from-the-menu-button) @BotFather.
+- one can register direct link to the Mini App (like `https://t.me/DemoShopMACBot/goods`) using @BotFather command `/newapp`.
+
+
+### frontend (Mini App)
+
+
+Demo shop Mini App is a SPA website created with **Vue 3**. It also uses **Pinia** for common state managment, **Vue Router** for routing and **Tailwind CSS** as CSS framework. Mini App consists of these main parts:
+- `stores/base.ts` - base store instance, which contains shared state and logic for all pages/components, and interaction with API server (backend).
+- `views/GoodsView.vue` - page with the list of shop items.
+- `views/OrderView.vue` - page with the list of selected items and total price.
+- `components/BackButton.vue`, `components/MainButton.vue` - `WebApp.BackButton` and `WebApp.MainButton` as Vue components.
+- `router/index.ts` - routes declaration and router instance.
+
+
+<p align="center">
+  <img src="_misc/docs/GoodsView.png" width="200" />
+  <img src="_misc/docs/OrderView.png" width="200" />
+</p>
+
 
 ## Setup guide
 
-### build
 
-[Go](https://go.dev/)
-[Node.js](https://nodejs.org/en)
+### Build
 
-`
+
+To build this project you need to install [Go][1] and [Node.js](https://nodejs.org/en).
+
+
+Build backend:
+```
 cd back/
-// for  cross-compile use export GOOS="linux" export GOARCH="amd64"
 go mod download
 go build
-`
+```
+> For cross-compilation you can define GOOS and GOARCH environment variables prior to running `go build`.
 
-`
+
+Build bot:
+```
 cd bot/
-// for cross-compile use export GOOS="linux" export GOARCH="amd64"
 go mod download
 go build
-`
+```
 
-`
+
+Build frontend (Mini App) for production:
+```
 cd miniapp/
 npm install
-// VITE_APP_API in .env.production
 npm run build
-`
+```
+> You should set `VITE_APP_API` parameter in `.env.production` file, pointing to your backend server. More in Deploy section.
 
-### deploy
 
-#### local
+### Deploy
 
-*ngrok.yml*
-`
+
+#### Local
+
+
+To help with local deployement we will be using [ngrok](https://ngrok.com/) as a HTTPS-enabling proxy to our HTTP backend and frontend (Mini App) instances. After installation add these lines to `ngrok.yml`:
+```
 tunnels:
   back:
     proto: http
@@ -45,77 +107,136 @@ tunnels:
   miniapp:
     proto: http
     addr: 5173
-`
+```
+> 4001 is a backend server port. 5173 is usually a port for local Node.js server (you can see actual port after running `npm run dev`).
 
-`
-./ngrok start back miniapp
-`
 
-`
+To start a proxy run `./ngrok start back miniapp`. The output will be something like this:
+```
+Session Status     online
+Account            - (Plan: Free)
+Version            3.3.5
+Region             Europe (eu)
+Latency            -
+Web Interface      http://127.0.0.1:4040
+Forwarding         https://d842-2a02-2698-28-6a02-bd77-7690-2f56-2e92.ngrok-free.app -> http://localhost:4001
+Forwarding         https://7908-2a02-2698-28-6a02-bd77-7690-2f56-2e92.ngrok-free.app -> http://localhost:5173
+```
+
+The address `https://d842-2a02-2698-28-6a02-bd77-7690-2f56-2e92.ngrok-free.app` is a HTTPS URL of our backend server, it can be used as `VITE_APP_API` parameter for the frontend (Mini App).
+
+And address `https://7908-2a02-2698-28-6a02-bd77-7690-2f56-2e92.ngrok-free.app` is a frontend (Mini App) HTTPS URL, it can be used as `URL` parameter for the bot.
+
+> For free accounts ngrok shows warning page on first visit. To skip it one can add `Ngrok-Skip-Browser-Warning` to request headers.
+
+
+Run backend:
+```
 ./back/back
-`
+```
 
-`
+
+Run frontend:
+```
 cd miniapp/
-// ngrok proxy addr for back to VITE_APP_API in .env
 npm run dev
-`
+```
+> You should set `VITE_APP_API` in `.env` file, pointing to your backend server. Use ngrok proxy address for backend.
 
-`
-export TOKEN=""  // bot token
-export TEST_ENV=""  // any value for test environment, empty for production
-export URL=""  // ngrok proxy addr for miniapp
+
+Run bot:
+```
+export TOKEN=""  <--- bot token
+export TEST_ENV=""  <--- any value to use Telegram test servers, empty for production
+export URL=""  <--- ngrok proxy address for miniapp
 ./bot/bot
-`
+```
 
-#### hosting
 
-Debian VPS hosting
+#### Hosting
 
-[nginx](https://nginx.org/)
 
-`
-ssh SRV "mkdir -p /mac/back/"
-scp back/back SRV:/mac/back/
-ssh SRV "chmod +x /mac/back/back"
+> At this point you should have a VPS, domain name pointing to that VPS and SSL certificate issued to that domain name.
 
-ssh SRV "mkdir -p /mac/bot/"
-scp bot/bot SRV:/mac/bot/
-ssh SRV "chmod +x /mac/bot/bot"
 
-ssh SRV "mkdir -p /mac/miniapp/"
-scp -r miniapp/dist/* SRV:/mac/miniapp/
-scp -r misc/images/ SRV:/mac/miniapp/
+> Next instructions applicable for Debian x64 VPS hosting.
 
-scp misc/nginx/miniapp SRV:/etc/nginx/sites-available/
-ssh SRV "ln -s /etc/nginx/sites-available/miniapp /etc/nginx/sites-enabled/"
-ssh SRV "systemctl nginx restart"
-`
-`
-ssh SRV "rm -f /etc/nginx/sites-enabled/default"
-`
 
-`
+Backend and bot should be cross-compiled for Linux x64 (`GOOS="linux"`, `GOARCH="amd64"`). Frontend will be hosted using [nginx](https://nginx.org/).
+
+
+Upload files:
+```
+ssh %SRV% "mkdir -p /mac/back/"
+scp back/back %SRV%:/mac/back/
+ssh %SRV% "chmod +x /mac/back/back"
+
+ssh %SRV% "mkdir -p /mac/bot/"
+scp bot/bot %SRV%:/mac/bot/
+ssh %SRV% "chmod +x /mac/bot/bot"
+
+ssh %SRV% "mkdir -p /mac/miniapp/"
+scp -r miniapp/dist/* %SRV%:/mac/miniapp/
+scp -r misc/deploy/miniapp/images/ %SRV%:/mac/miniapp/
+
+scp misc/deploy/nginx/miniapp %SRV%:/etc/nginx/sites-available/
+```
+> %SRV% - vps address (user@server_ip).
+
+
+Sample nginx configuration:
+```
+server {
+  listen 443 ssl;
+  listen [::]:443 ssl;
+
+  server_name domain.name www.domain.name;
+
+  ssl_certificate domain.name.bundle.cer;
+  ssl_certificate_key domain.name.key;
+  ssl_protocols TLSv1.2 TLSv1.3;
+
+  location / {
+    root /mac/miniapp;
+    index index.html;
+    try_files $uri $uri/ /index.html;
+  }
+
+  location /api/ {
+    proxy_pass http://localhost:4001/;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+}
+```
+
+
+Run backend:
+```
 ./back/back
-`
+```
 
-`
-export TOKEN=""
-export TEST_ENV=""
-export URL=""
+
+Run frontend:
+```
+ln -s /etc/nginx/sites-available/miniapp /etc/nginx/sites-enabled/
+systemctl nginx restart
+```
+
+
+Run bot:
+```
+export TOKEN=""  <--- bot token
+export TEST_ENV=""  <--- empty for Telegram production servers
+export URL=""  <--- https://domain.name
 ./bot/bot
-`
+```
 
-`
-scp misc/bot_env SRV:/mac/
-scp misc/systemd/miniapp-back.service SRV:/lib/systemd/system/
-scp misc/systemd/miniapp-bot.service SRV:/lib/systemd/system/
 
-ssh SRV "systemctl daemon-reload"
+Open [bot][2] and run `/start` command to open Demo shop Mini App.
 
-ssh SRV "systemctl enable miniapp-back"
-ssh SRV "systemctl enable miniapp-bot"
 
-ssh SRV "systemctl start miniapp-back"
-ssh SRV "systemctl start miniapp-bot"
-`
+[1]: https://go.dev/
+[2]: https://t.me/MiniAppContestBot

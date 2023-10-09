@@ -1,3 +1,5 @@
+<!-- Page shows list of selected shop items and total price -->
+
 <script setup lang="ts">
   import { computed } from 'vue';
   import { useRouter } from 'vue-router';
@@ -10,22 +12,28 @@
   const router = useRouter();
   const baseStore = useBaseStore();
 
+  // if cart is empty (reload or direct link) go back to GoodsView
   if (!baseStore.isSmthSelected) {
-    // empty cart (reload or direct link), going to GoodsView
     router.replace('/');
   }
 
+  // always show exit confirmation
   useClosingConfirmation(true);
 
-  const total = computed(() => baseStore.selectedItems.map(it => it.qty * it.item.price).reduce((prev, it) => prev + it, 0));
+  // total amount to pay
+  const total = computed(() => baseStore.selectedItems
+      .map(it => it.qty * it.item.price)
+      .reduce((prev, it) => prev + it, 0));
 
+  // back/edit order handler - go back
   function onBackButtonClicked() {
     router.back();
   }
 
+  // place order handler - calls store, then shows "done" popup
   async function onMainButtonClicked() {
     await baseStore.makeOrder();
-    WebApp.showPopup({message: 'Done'}, () => WebApp.close());
+    WebApp.showPopup({message: 'Done. This is demo shop, no goods will be delivered.'}, () => WebApp.close());
   }
 </script>
 

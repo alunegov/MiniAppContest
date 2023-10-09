@@ -59,7 +59,7 @@ func main() {
 	dispatcher.AddHandler(handlers.NewCommand("start", func(b *gotgbot.Bot, ctx *ext.Context) error {
 		return start(b, ctx, webAppUrl)
 	}))
-	// just log all other messages
+	// log all other messages
 	dispatcher.AddHandler(handlers.NewMessage(message.Text, justLog))
 
 	// Start receiving (and handling) updates
@@ -77,7 +77,7 @@ func main() {
 func start(b *gotgbot.Bot, ctx *ext.Context, webAppUrl string) error {
 	log.Println("/start", ctx.EffectiveMessage)
 
-	_, err := ctx.EffectiveMessage.Reply(b, fmt.Sprintf("Hello, I'm @%s.\nYou can use me to order goods from demo shop!", b.User.Username), &gotgbot.SendMessageOpts{
+	_, err := ctx.EffectiveMessage.Reply(b, fmt.Sprintf("Hello, I'm @%s.\nYou can use me to order goods from Demo shop!", b.User.Username), &gotgbot.SendMessageOpts{
 		ParseMode: "HTML",
 		ReplyMarkup: gotgbot.InlineKeyboardMarkup{
 			InlineKeyboard: [][]gotgbot.InlineKeyboardButton{{

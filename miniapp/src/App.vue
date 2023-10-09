@@ -5,6 +5,7 @@
   WebApp.ready();
   //WebApp.expand();
 
+  // loading goods once during App creation
   const baseStore = useBaseStore();
   baseStore.loadItems();
 </script>

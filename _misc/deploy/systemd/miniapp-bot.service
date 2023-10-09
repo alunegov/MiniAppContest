@@ -1,0 +1,14 @@
+[Unit]
+Description=MiniAppContest bot service
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=3
+User=root
+ExecStart=/data/mac/bot/bot
+EnvironmentFile=/data/mac/bot_env
+
+[Install]
+WantedBy=multi-user.target

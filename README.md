@@ -1,7 +1,7 @@
 # Demo shop Mini App
 
 
-Demo shop is a simple [Telegram Mini App](https://core.telegram.org/bots/webapps) providing basic e-commerce functionality. Try this Mini App using [@MiniAppContestBot][2].
+Demo shop is a simple [Telegram Mini App](https://core.telegram.org/bots/webapps) providing basic e-commerce functionality. Try this Mini App using [@DemoShopMACBot][2].
 
 
 Mini Apps can be interpreted as web sites (frontend and backend) running inside Telegram and launched via [bots](https://core.telegram.org/bots). This Mini App consists of three parts:
@@ -235,8 +235,8 @@ export URL=""  <--- https://domain.name
 ```
 
 
-Open [bot][2] and run `/start` command to open Demo shop Mini App.
+Open [@DemoShopMACBot][2] and run `/start` command to open Demo shop Mini App.
 
 
 [1]: https://go.dev/
-[2]: https://t.me/MiniAppContestBot
+[2]: https://t.me/DemoShopMACBot

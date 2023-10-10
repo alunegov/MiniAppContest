@@ -25,17 +25,18 @@ Backend is based on **http.Server** - standard HTTP server and **httprouter** - 
 - `/goods` - GET-request to get the list of shop items. Data is returned as JSON payload.
 - `/order` - POST-request to place the order. Order data is accepted as JSON request body. During the order processing invoice will be created via Bot API, it will be returned as JSON payload.
 
+It also supports OPTIONS requests.
+
+
 Backend can be configured with this environment variables:
 - `TOKEN` - bot token (add `/test` for test environment).
 - `PAY_TOKEN` - pament provider token.
-
-It also supports OPTIONS requests.
 
 
 ### bot
 
 
-Bot is based on **gotgbot** - Golang Telegram Bot library. Bot supports one command `/start`, to which it replys with the Mini App link (HTTPS URL). It also processes `pre_checkout_query` updates, positively replying to all queries.
+Bot is based on **gotgbot** - Golang Telegram Bot library. Bot supports one command `/start`, to which it responds with the Mini App link (HTTPS URL). It also processes `pre_checkout_query` updates, positively replying to all queries.
 
 Bot can be configured with this environment variables:
 - `TOKEN` - bot token.
@@ -44,7 +45,7 @@ Bot can be configured with this environment variables:
 
 
 There are several ways to launch Mini App. This Mini App uses the next ones:
-- When sending `/start` command to [@DemoShopMACBot][2] it replys with inline button **Order goods** which opens the Mini App.
+- When sending `/start` command to [@DemoShopMACBot][2] it answers with inline button **Order goods** which opens the Mini App.
 - Also [@DemoShopMACBot][2] has menu button **Order goods** which opens the Mini App. Menu button can be added/configured [using](https://core.telegram.org/bots/webapps#launching-mini-apps-from-the-menu-button) @BotFather.
 - Mini App can be opened by direct link (like `https://t.me/DemoShopMACBot/goods`). Direct link are created by linking Mini App to bot using @BotFather command `/newapp`.
 
@@ -72,9 +73,9 @@ Demo shop Mini App is a SPA website created with **Vue 3**. It also uses **Pinia
 - user presses the *Pay* button
 - Mini App makes request to the backend, listing selected items
 - backend via Bot API (`createInvoiceLink` method) creates invoice link and returns its URL in response
-- Mini App opens invoice using `WebApp.openInvoice`
-- user fills payment details, phone number and shipping address and proceed with payment
-- Telegram sends `pre_checkout_query` update to the bot, to which it always replys positively
+- Mini App opens invoice using `WebApp.openInvoice` with provided URL
+- user fills in payment details, phone number and shipping address and proceed with payment
+- Telegram sends `pre_checkout_query` update to the bot, to which it always respond positively
 - `WebApp.openInvoice` calls the specified callback with payment status
 
 
@@ -247,7 +248,7 @@ export PAY_TOKEN=""  // payment token
 Run frontend:
 ```
 ln -s /etc/nginx/sites-available/miniapp /etc/nginx/sites-enabled/
-systemctl nginx restart
+systemctl restart nginx
 ```
 
 

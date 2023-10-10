@@ -74,8 +74,8 @@ Demo shop Mini App is a SPA website created with **Vue 3**. It also uses **Pinia
 - backend via Bot API (`createInvoiceLink` method) creates invoice link and returns its URL in response
 - Mini App opens invoice using `WebApp.openInvoice`
 - user fills payment details, phone number and shipping address and proceed with payment
-- Telegram sends `pre_checkout_query` update to the bot, to witch it always replys positively
-- `WebApp.openInvoice` calls the specified callback
+- Telegram sends `pre_checkout_query` update to the bot, to which it always replys positively
+- `WebApp.openInvoice` calls the specified callback with payment status
 
 
 ## Setup guide
@@ -140,13 +140,11 @@ Version            3.3.5
 Region             Europe (eu)
 Latency            -
 Web Interface      http://127.0.0.1:4040
-Forwarding         https://d842-2a02-2698-28-6a02-bd77-7690-2f56-2e92.ngrok-free.app -> http://localhost:4001
-Forwarding         https://7908-2a02-2698-28-6a02-bd77-7690-2f56-2e92.ngrok-free.app -> http://localhost:5173
+Forwarding         https://SOME-GUID1.ngrok-free.app -> http://localhost:4001
+Forwarding         https://SOME-GUID2.ngrok-free.app -> http://localhost:5173
 ```
 
-The address `https://d842-2a02-2698-28-6a02-bd77-7690-2f56-2e92.ngrok-free.app` is a HTTPS URL of our backend server, it can be used as `VITE_APP_API` parameter for the frontend (Mini App).
-
-And address `https://7908-2a02-2698-28-6a02-bd77-7690-2f56-2e92.ngrok-free.app` is a frontend (Mini App) HTTPS URL, it can be used as `URL` parameter for the bot.
+The first address (which points to port 4001) is a HTTPS URL of our backend server, it can be used as `VITE_APP_API` parameter for the frontend (Mini App). And then second one (points to port 5173) is a frontend (Mini App) HTTPS URL, it can be used as `URL` parameter for the bot.
 
 > For free accounts ngrok shows warning page on first visit. To skip it one can add non-empty `Ngrok-Skip-Browser-Warning` to request headers, it's essential for requests to backend.
 

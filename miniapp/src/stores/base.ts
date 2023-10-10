@@ -6,9 +6,13 @@ export const useBaseStore = defineStore('base', () => {
   // server address
   const APP_API = import.meta.env.VITE_APP_API;
 
+  // ops error text, mostly for loadItems and makeOrder
+  const errorText = ref('');
+
   // shop items
   const items = ref<{
     item: Item;
+    // amount of items selected
     qty: number;
   }[]>([]);
 
@@ -18,15 +22,35 @@ export const useBaseStore = defineStore('base', () => {
   // flag: something has been selected
   const isSmthSelected = computed(() => selectedItems.value.length !== 0);
 
+  // set error text, after 2.5 sec clears it
+  function applyError(text: string) {
+    errorText.value = text;
+    if (errorText.value !== '') {
+      setTimeout(() => clearError(), 2500);
+    }
+  }
+
+  // clear error text
+  function clearError() {
+    errorText.value = '';
+  }
+
   // load shop items from server
   async function loadItems() {
-    const resp = await fetch(`${APP_API}/goods`, {
-      headers: {
-        'Ngrok-Skip-Browser-Warning': 'da',  // ngrok shows warn in free accounts
-      },
-    });
-    const goods: Item[] = await resp.json();
-    items.value = goods.map(it => ({item: it, qty: 0}));
+    try {
+      clearError();
+
+      const resp = await fetch(`${APP_API}/goods`, {
+        headers: {
+          'Ngrok-Skip-Browser-Warning': 'da',  // ngrok shows warn in free accounts
+        },
+      });
+      const goods: Item[] = await resp.json();
+
+      items.value = goods.map(it => ({item: it, qty: 0}));
+    } catch (err) {
+      applyError((err as Error).message);
+    }
   }
 
   // add item to cart
@@ -52,26 +76,37 @@ export const useBaseStore = defineStore('base', () => {
 
   // place order to server
   async function makeOrder() {
-    const payload = selectedItems.value.map<{
-      id: number;
-      qty: number;
-    }>(it => ({id: it.item.id, qty: it.qty}));
+    try {
+      clearError();
 
-    /*const resp = */await fetch(`${APP_API}/order`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Ngrok-Skip-Browser-Warning': 'da',  // ngrok shows warn in free accounts
-      },
-      body: JSON.stringify(payload),
-    });
+      const payload = selectedItems.value.map<{
+        id: number;
+        qty: number;
+      }>(it => ({id: it.item.id, qty: it.qty}));
+
+      /*const resp = */await fetch(`${APP_API}/order`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Ngrok-Skip-Browser-Warning': 'da',  // ngrok shows warn in free accounts
+        },
+        body: JSON.stringify(payload),
+      });
+
+      return true;
+    } catch (err) {
+      applyError((err as Error).message);
+      return false;
+    }
   }
 
   return {
+    errorText,
     items,
     selectedItems,
     isSmthSelected,
     
+    clearError,
     loadItems,
     buyItem,
     unbuyItem,

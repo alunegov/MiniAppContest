@@ -5,6 +5,7 @@
   import { useRouter } from 'vue-router';
   import { useBaseStore } from '../stores/base';
   import type { Item } from '../stores/base';
+  import ErrorText from '../components/ErrorText.vue';
   import MainButton from '../components/MainButton.vue';
   import { useClosingConfirmation } from '../composables/useClosingConfirmation';
 
@@ -47,7 +48,7 @@
         </div>
 
         <div class="mt-2 flex gap-2">
-          <Transition name="ba">
+          <Transition name="resize-x">
             <button v-if="it.qty > 0" v-wave type="button" @click="onUnbuyClicked(it.item)" class="w-full h-11 rounded text-[--tg-theme-button-text-color] bg-red-400">-</button>
           </Transition>
           <button v-wave type="button" @click="onBuyClicked(it.item)" class="w-full h-11 rounded text-[--tg-theme-button-text-color] bg-[--tg-theme-button-color]">{{ it.qty === 0 ? 'ADD' : '+' }}</button>
@@ -55,18 +56,20 @@
       </div>
     </div>
 
+    <ErrorText :text="baseStore.errorText" />
+
     <MainButton v-if="baseStore.isSmthSelected" :text="'VIEW ORDER'" @click="onMainButtonClicked" />
   </div>
 </template>
 
 <style>
-.ba-enter-active,
-.ba-leave-active {
+.resize-x-enter-active,
+.resize-x-leave-active {
   transition: width 200ms ease;
 }
 
-.ba-enter-from,
-.ba-leave-to {
+.resize-x-enter-from,
+.resize-x-leave-to {
   @apply w-0;
 }
 </style>

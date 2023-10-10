@@ -5,6 +5,7 @@
   import { useRouter } from 'vue-router';
   import WebApp from '@twa-dev/sdk';
   import { useBaseStore } from '../stores/base';
+  import ErrorText from '../components/ErrorText.vue';
   import BackButton from '../components/BackButton.vue';
   import MainButton from '../components/MainButton.vue';
   import { useClosingConfirmation } from '../composables/useClosingConfirmation';
@@ -32,8 +33,11 @@
 
   // place order handler - calls store, then shows "done" popup
   async function onMainButtonClicked() {
-    await baseStore.makeOrder();
-    WebApp.showPopup({message: 'Done. This is demo shop, no goods will be delivered.'}, () => WebApp.close());
+    const opRes = await baseStore.makeOrder();
+    if (!opRes) {
+      return;
+    }
+    WebApp.showPopup({message: 'Done. This is a demo shop, no goods will be delivered.'}, () => WebApp.close());
   }
 </script>
 
@@ -57,6 +61,8 @@
       <div class="font-bold">TOTAL</div>
       <div class="ms-5 font-bold">${{ total }}</div>
     </div>
+
+    <ErrorText :text="baseStore.errorText" />
 
     <MainButton :text="'PLACE ORDER'" @click="onMainButtonClicked" />
   </div>

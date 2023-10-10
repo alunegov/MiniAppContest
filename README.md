@@ -34,10 +34,10 @@ Bot is based on **gotgbot** - Golang Telegram Bot library. Bot supports one comm
 > Use [this](https://core.telegram.org/bots#how-do-i-create-a-bot) on how to create bot and get bot token.
 
 
-There are several ways to launch Mini App. This Mini App uses next three:
-- when sending `/start` command to [@DemoShopMACBot][2] it replys with inline button **Order goods** which opens the Mini App.
-- also [@DemoShopMACBot][2] has menu button **Order goods** which opens the Mini App. This can be achieved [using](https://core.telegram.org/bots/webapps#launching-mini-apps-from-the-menu-button) @BotFather.
-- one can register direct link to the Mini App (like `https://t.me/DemoShopMACBot/goods`) using @BotFather command `/newapp`.
+There are several ways to launch Mini App. This Mini App uses the next ones:
+- When sending `/start` command to [@DemoShopMACBot][2] it replys with inline button **Order goods** which opens the Mini App.
+- Also [@DemoShopMACBot][2] has menu button **Order goods** which opens the Mini App. Menu button can be added/configured [using](https://core.telegram.org/bots/webapps#launching-mini-apps-from-the-menu-button) @BotFather.
+- Mini App can be opened by direct link (like `https://t.me/DemoShopMACBot/goods`). Direct link are created by linking Mini App to bot using @BotFather command `/newapp`.
 
 
 ### frontend (Mini App)
@@ -69,7 +69,7 @@ To build this project you need to install [Go][1] and [Node.js](https://nodejs.o
 Build backend:
 ```
 cd back/
-go mod download
+go mod download  // this will install all dependencies
 go build
 ```
 > For cross-compilation you can define GOOS and GOARCH environment variables prior to running `go build`.
@@ -86,8 +86,8 @@ go build
 Build frontend (Mini App) for production:
 ```
 cd miniapp/
-npm install
-npm run build
+npm install  // this will install all dependencies
+npm run build  // this will create hostable website in "dist/" folder
 ```
 > You should set `VITE_APP_API` parameter in `.env.production` file, pointing to your backend server. More in Deploy section.
 
@@ -108,7 +108,7 @@ tunnels:
     proto: http
     addr: 5173
 ```
-> 4001 is a backend server port. 5173 is usually a port for local Node.js server (you can see actual port after running `npm run dev`).
+> 4001 is a backend server port. 5173 is a local Node.js server port (you can see actual port after running `npm run dev`).
 
 
 To start a proxy run `./ngrok start back miniapp`. The output will be something like this:
@@ -119,8 +119,8 @@ Version            3.3.5
 Region             Europe (eu)
 Latency            -
 Web Interface      http://127.0.0.1:4040
-Forwarding         https://d842-2a02-2698-28-6a02-bd77-7690-2f56-2e92.ngrok-free.app -> http://localhost:4001
 Forwarding         https://7908-2a02-2698-28-6a02-bd77-7690-2f56-2e92.ngrok-free.app -> http://localhost:5173
+Forwarding         https://d842-2a02-2698-28-6a02-bd77-7690-2f56-2e92.ngrok-free.app -> http://localhost:4001
 ```
 
 The address `https://d842-2a02-2698-28-6a02-bd77-7690-2f56-2e92.ngrok-free.app` is a HTTPS URL of our backend server, it can be used as `VITE_APP_API` parameter for the frontend (Mini App).
@@ -139,16 +139,16 @@ Run backend:
 Run frontend:
 ```
 cd miniapp/
-npm run dev
+npm run dev  // this will start local Node.js server
 ```
 > You should set `VITE_APP_API` in `.env` file, pointing to your backend server. Use ngrok proxy address for backend.
 
 
 Run bot:
 ```
-export TOKEN=""  <--- bot token
-export TEST_ENV=""  <--- any value to use Telegram test servers, empty for production
-export URL=""  <--- ngrok proxy address for miniapp
+export TOKEN=""  // bot token
+export TEST_ENV=""  // any value to use Telegram test servers, empty for production
+export URL=""  // ngrok proxy address for miniapp
 ./bot/bot
 ```
 
@@ -212,6 +212,8 @@ server {
 }
 ```
 
+This configuration describes a HTTPS server with name "domain.name" listening on port 443 and secured with certificate `domain.name.bundle.cer`/`domain.name.key`. All connections to path `/` maps to folder where our Vue application resides. All connections to path `/api/` redirects to our backend server.
+
 
 Run backend:
 ```
@@ -228,9 +230,9 @@ systemctl nginx restart
 
 Run bot:
 ```
-export TOKEN=""  <--- bot token
-export TEST_ENV=""  <--- empty for Telegram production servers
-export URL=""  <--- https://domain.name
+export TOKEN=""  // bot token
+export TEST_ENV=""  // empty for Telegram production servers
+export URL=""  // https://domain.name
 ./bot/bot
 ```
 
@@ -240,3 +242,4 @@ Open [@DemoShopMACBot][2] and run `/start` command to open Demo shop Mini App.
 
 [1]: https://go.dev/
 [2]: https://t.me/DemoShopMACBot
+[3]: https://t.me/DemoShopMACBot/goods

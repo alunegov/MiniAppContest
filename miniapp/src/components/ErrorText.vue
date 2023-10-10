@@ -1,3 +1,5 @@
+<!-- Error notification -->
+
 <script setup lang="ts">
   /*const props = */defineProps<{
     // text property

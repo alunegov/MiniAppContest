@@ -1,8 +1,9 @@
 <!-- Page shows list of shop items with prices and ability to select -->
 
 <script setup lang="ts">
-  import { computed } from 'vue';
+  import { computed, watchEffect } from 'vue';
   import { useRouter } from 'vue-router';
+  import WebApp from '@twa-dev/sdk';
   import { useBaseStore } from '../stores/base';
   import type { Item } from '../stores/base';
   import ErrorText from '../components/ErrorText.vue';
@@ -17,13 +18,21 @@
   const isSmthSelected = computed(() => baseStore.isSmthSelected);
   useClosingConfirmation(isSmthSelected);
 
+  watchEffect(() => {
+    if (baseStore.errorText !== '') {
+      WebApp.HapticFeedback.notificationOccurred('error');
+    }
+  });
+
   // add to cart handler
   function onBuyClicked(item: Item) {
+    WebApp.HapticFeedback.selectionChanged();
     baseStore.buyItem(item);
   }
 
   // remove from cart handler
   function onUnbuyClicked(item: Item) {
+    WebApp.HapticFeedback.selectionChanged();
     baseStore.unbuyItem(item);
   }
 
@@ -36,17 +45,21 @@
 <template>
   <div class="container mx-auto px-5 pt-2">
     <div class="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
+      <!-- Items list -->
       <div v-for="it in baseStore.items" :key="it.item.id" class="">
+        <!-- Item image and selected counter -->
         <div class="relative w-full h-28">
           <span v-if="it.qty > 0" class="absolute end-0 rounded-full px-2 inline-flex justify-center items-center text-[--tg-theme-button-text-color] bg-[--tg-theme-button-color]">{{ it.qty }}</span>
           <img :src="it.item.pic" :alt="it.item.picAlt" class="h-full mx-auto">
         </div>
 
+        <!-- Item name and price -->
         <div class="mt-2 flex justify-between">
           <h3 class="">{{ it.item.name }}</h3>
           <p class="">${{ it.item.price }}</p>
         </div>
 
+        <!-- Add/remove to cart buttons -->
         <div class="mt-2 flex gap-2">
           <Transition name="resize-x">
             <button v-if="it.qty > 0" v-wave type="button" @click="onUnbuyClicked(it.item)" class="w-full h-11 rounded text-[--tg-theme-button-text-color] bg-red-400">-</button>

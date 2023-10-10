@@ -8,6 +8,7 @@ Restart=always
 RestartSec=3
 User=root
 ExecStart=/data/mac/back/back
+EnvironmentFile=/data/mac/back_env
 
 [Install]
 WantedBy=multi-user.target

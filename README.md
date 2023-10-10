@@ -13,12 +13,21 @@ Mini Apps can be interpreted as web sites (frontend and backend) running inside 
 ## Structure
 
 
+> [How to](https://core.telegram.org/bots#how-do-i-create-a-bot) create a bot and get the bot token.
+
+> [How to](https://core.telegram.org/bots/payments) connect a payment provider and get the payment token.
+
+
 ### backend
 
 
 Backend is based on **http.Server** - standard HTTP server and **httprouter** - HTTP request router. Server runs on the port 4001, and serves two API endpoints:
 - `/goods` - GET-request to get the list of shop items. Data is returned as JSON payload.
-- `/order` - POST-request to place the order. Order data is accepted as JSON request body.
+- `/order` - POST-request to place the order. Order data is accepted as JSON request body. During the order processing invoice will be created via Bot API, it will be returned as JSON payload.
+
+Backend can be configured with this environment variables:
+- `TOKEN` - bot token (add `/test` for test environment).
+- `PAY_TOKEN` - pament provider token.
 
 It also supports OPTIONS requests.
 
@@ -30,8 +39,6 @@ Bot is based on **gotgbot** - Golang Telegram Bot library. Bot supports one comm
 - `TOKEN` - bot token.
 - `TEST_ENV` - use Telegram test servers.
 - `URL` - Mini App HTTPS URL.
-
-> Use [this](https://core.telegram.org/bots#how-do-i-create-a-bot) on how to create bot and get bot token.
 
 
 There are several ways to launch Mini App. This Mini App uses the next ones:
@@ -119,19 +126,21 @@ Version            3.3.5
 Region             Europe (eu)
 Latency            -
 Web Interface      http://127.0.0.1:4040
-Forwarding         https://7908-2a02-2698-28-6a02-bd77-7690-2f56-2e92.ngrok-free.app -> http://localhost:5173
 Forwarding         https://d842-2a02-2698-28-6a02-bd77-7690-2f56-2e92.ngrok-free.app -> http://localhost:4001
+Forwarding         https://7908-2a02-2698-28-6a02-bd77-7690-2f56-2e92.ngrok-free.app -> http://localhost:5173
 ```
 
 The address `https://d842-2a02-2698-28-6a02-bd77-7690-2f56-2e92.ngrok-free.app` is a HTTPS URL of our backend server, it can be used as `VITE_APP_API` parameter for the frontend (Mini App).
 
 And address `https://7908-2a02-2698-28-6a02-bd77-7690-2f56-2e92.ngrok-free.app` is a frontend (Mini App) HTTPS URL, it can be used as `URL` parameter for the bot.
 
-> For free accounts ngrok shows warning page on first visit. To skip it one can add `Ngrok-Skip-Browser-Warning` to request headers.
+> For free accounts ngrok shows warning page on first visit. To skip it one can add non-empty `Ngrok-Skip-Browser-Warning` to request headers, it's essential for requests to backend.
 
 
 Run backend:
 ```
+export TOKEN=""  // bot token
+export PAY_TOKEN=""  // payment token
 ./back/back
 ```
 
@@ -217,6 +226,8 @@ This configuration describes a HTTPS server with name "domain.name" listening on
 
 Run backend:
 ```
+export TOKEN=""  // bot token
+export PAY_TOKEN=""  // payment token
 ./back/back
 ```
 

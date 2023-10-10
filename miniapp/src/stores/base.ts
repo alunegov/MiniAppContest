@@ -1,5 +1,6 @@
-import { computed, ref } from 'vue'
-import { defineStore } from 'pinia'
+import { computed, ref } from 'vue';
+import { defineStore } from 'pinia';
+import WebApp from '@twa-dev/sdk';
 
 // Base store
 export const useBaseStore = defineStore('base', () => {
@@ -10,11 +11,7 @@ export const useBaseStore = defineStore('base', () => {
   const errorText = ref('');
 
   // shop items
-  const items = ref<{
-    item: Item;
-    // amount of items selected
-    qty: number;
-  }[]>([]);
+  const items = ref<StoreItem[]>([]);
 
   // selected items
   const selectedItems = computed(() => items.value.filter(it => it.qty > 0));
@@ -74,23 +71,37 @@ export const useBaseStore = defineStore('base', () => {
     items.value[indx].qty--;
   }
 
-  // place order to server
-  async function makeOrder() {
+  // place order to server, it returns invoice link
+  async function makeOrder(): Promise<boolean> {
     try {
       clearError();
 
-      const payload = selectedItems.value.map<{
-        id: number;
-        qty: number;
-      }>(it => ({id: it.item.id, qty: it.qty}));
+      const payload = selectedItems.value.map<OrderItem>(it => ({id: it.item.id, qty: it.qty}));
 
-      /*const resp = */await fetch(`${APP_API}/order`, {
+      const resp = await fetch(`${APP_API}/order`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Init-Data': WebApp.initData,
           'Ngrok-Skip-Browser-Warning': 'da',  // ngrok shows warn in free accounts
         },
         body: JSON.stringify(payload),
+      });
+      const invoiceLink = await resp.json();
+
+      if (!invoiceLink.ok) {
+        applyError(invoiceLink.description);
+        return false;
+      }
+
+      WebApp.openInvoice(invoiceLink.result, status => {
+        if (status === 'paid') {
+          WebApp.close();
+        } else if (status === 'failed') {
+          applyError('Payment failed');
+        } else {
+          applyError('Payment canceled');
+        }
       });
 
       return true;
@@ -115,10 +126,25 @@ export const useBaseStore = defineStore('base', () => {
 })
 
 // Shop item
+// refs back.Item
 export interface Item {
   id: number;
   name: string;
   price: number;
   pic: string;
   picAlt: string;
-}
+};
+
+interface StoreItem {
+  item: Item;
+  // amount of selected items
+  qty: number;
+};
+
+// refs back.OrderItem
+interface OrderItem {
+  // item id
+  id: number;
+  // amount of selected items
+  qty: number;
+};

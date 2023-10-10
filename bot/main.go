@@ -59,6 +59,8 @@ func main() {
 	dispatcher.AddHandler(handlers.NewCommand("start", func(b *gotgbot.Bot, ctx *ext.Context) error {
 		return start(b, ctx, webAppUrl)
 	}))
+	//
+	dispatcher.AddHandler(NewPreCheckoutQuery(preCheckoutQuery))
 	// log all other messages
 	dispatcher.AddHandler(handlers.NewMessage(message.Text, justLog))
 
@@ -91,8 +93,44 @@ func start(b *gotgbot.Bot, ctx *ext.Context, webAppUrl string) error {
 	return nil
 }
 
+// preCheckoutQuery. We got 10 seconds to answer
+func preCheckoutQuery(b *gotgbot.Bot, ctx *ext.Context) error {
+	log.Println("preCheckoutQuery", ctx.PreCheckoutQuery, ctx.PreCheckoutQuery.OrderInfo, ctx.PreCheckoutQuery.OrderInfo.ShippingAddress)
+	if ctx.PreCheckoutQuery.OrderInfo != nil {
+		log.Println("preCheckoutQuery", ctx.PreCheckoutQuery.OrderInfo, ctx.PreCheckoutQuery.OrderInfo.ShippingAddress)
+	}
+
+	_, err := ctx.PreCheckoutQuery.Answer(b, true, nil)
+	if err != nil {
+		return fmt.Errorf("failed to answer preCheckoutQuery: %w", err)
+	}
+	return nil
+}
+
 // justLog logs a message
 func justLog(b *gotgbot.Bot, ctx *ext.Context) error {
 	log.Println("unk", ctx.EffectiveMessage)
 	return nil
+}
+
+type PreCheckoutQuery struct {
+	Response handlers.Response
+}
+
+func NewPreCheckoutQuery(r handlers.Response) PreCheckoutQuery {
+	return PreCheckoutQuery{
+		Response: r,
+	}
+}
+
+func (m PreCheckoutQuery) CheckUpdate(b *gotgbot.Bot, ctx *ext.Context) bool {
+	return ctx.PreCheckoutQuery != nil
+}
+
+func (m PreCheckoutQuery) HandleUpdate(b *gotgbot.Bot, ctx *ext.Context) error {
+	return m.Response(b, ctx)
+}
+
+func (m PreCheckoutQuery) Name() string {
+	return fmt.Sprintf("message_%p", m.Response)
 }

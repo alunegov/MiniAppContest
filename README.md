@@ -35,7 +35,9 @@ It also supports OPTIONS requests.
 ### bot
 
 
-Bot is based on **gotgbot** - Golang Telegram Bot library. Bot supports one command `/start`, to which it replys with the Mini App link (HTTPS URL). Bot can be configured with this environment variables:
+Bot is based on **gotgbot** - Golang Telegram Bot library. Bot supports one command `/start`, to which it replys with the Mini App link (HTTPS URL). It also processes `pre_checkout_query` updates, positively replying to all queries.
+
+Bot can be configured with this environment variables:
 - `TOKEN` - bot token.
 - `TEST_ENV` - use Telegram test servers.
 - `URL` - Mini App HTTPS URL.
@@ -62,6 +64,18 @@ Demo shop Mini App is a SPA website created with **Vue 3**. It also uses **Pinia
   <img src="_misc/docs/GoodsView.png" width="200" />
   <img src="_misc/docs/OrderView.png" width="200" />
 </p>
+
+
+### Integrated payments algo
+
+
+- user presses the *Pay* button
+- Mini App makes request to the backend, listing selected items
+- backend via Bot API (`createInvoiceLink` method) creates invoice link and returns its URL in response
+- Mini App opens invoice using `WebApp.openInvoice`
+- user fills payment details, phone number and shipping address and proceed with payment
+- Telegram sends `pre_checkout_query` update to the bot, to witch it always replys positively
+- `WebApp.openInvoice` calls the specified callback
 
 
 ## Setup guide
